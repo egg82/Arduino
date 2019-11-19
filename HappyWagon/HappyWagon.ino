@@ -64,11 +64,6 @@ void loop() {
 float randFloat(float mills, float maxMills) { return ((float) random(0, RAND_MAX) / (float) RAND_MAX) * (mills / maxMills); }
 
 IEffect *getEffect(Effect effect) {
-    Serial.print("[");
-    Serial.print(millis());
-    Serial.print("] ");
-    Serial.print("Attempting to switch to ");
-    Serial.println(effect);
     switch (effect) {
         case BLINK:
         return new Blink();
