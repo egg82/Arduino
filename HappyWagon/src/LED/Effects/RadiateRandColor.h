@@ -1,8 +1,8 @@
 #ifndef RadiateRandColor_h
 #define RadiateRandColor_h
 
-#include "../LEDController.h"
 #include "IEffect.h"
+#include "../LEDController.h"
 
 class RadiateRandColor : public IEffect {
     private:

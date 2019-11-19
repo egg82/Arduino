@@ -34,8 +34,20 @@ void PongRandColor::loop(CHSV leds[]) {
     leds[currentLED].v = 0;
     if (pongReverse) {
         currentLED--;
+        for (int i = 0; i < tailLength; i++) {
+            if (currentLED + i < NUM_LEDS) {
+                float val = 255.0F * (1.0F - (float) i / (float) tailLength);
+                leds[currentLED + i].v = val;
+            }
+        }
     } else {
         currentLED++;
+        for (int i = 0; i < tailLength; i++) {
+            if (currentLED - i > 0) {
+                float val = 255.0F * (1.0F - (float) i / (float) tailLength);
+                leds[currentLED - i].v = val;
+            }
+        }
     }
     leds[currentLED].v = 255;
     if (currentLED <= 0) {
