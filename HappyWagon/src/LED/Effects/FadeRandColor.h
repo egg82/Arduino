@@ -7,7 +7,7 @@ class FadeRandColor : public IEffect {
     private:
     bool isSet = false;
     bool destroyed = false;
-    bool fadeReverse = true;
+    bool fadeReverse = false;
     public:
     FadeRandColor();
     bool isSetup() { return isSet; }

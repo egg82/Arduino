@@ -4,7 +4,7 @@
 #include <FastLED.h>
 #include "Effects/IEffect.h"
 
-#define NUM_LEDS 16
+#define NUM_LEDS 30
 #define PIN 3
 
 class LEDController {
