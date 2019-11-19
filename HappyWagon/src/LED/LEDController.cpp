@@ -6,8 +6,6 @@
 
 CHSV leds[NUM_LEDS];
 CRGB c[NUM_LEDS];
-IEffect LEDController::*effect = NULL;
-IEffect LEDController::*previousEffect = NULL;
 
 LEDController::LEDController() {
     FastLED.addLeds<LED_TYPE, PIN, COLOR_ORDER>(c, NUM_LEDS).setCorrection(TypicalLEDStrip);
@@ -15,10 +13,10 @@ LEDController::LEDController() {
 }
 
 void LEDController::setEffect(IEffect *effect) {
-    if (this->previousEffect != NULL) {
-        delete this->previousEffect;
+    if (previousEffect != NULL) {
+        delete previousEffect;
     }
-    this->previousEffect = this->effect;
+    previousEffect = this->effect;
     this->effect = effect;
 }
 

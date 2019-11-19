@@ -26,6 +26,7 @@ Effect currentEffect;
 
 void setup() {
     Serial.begin(115200);
+    delay(5000);
     random16_set_seed(analogRead(1));
     randomSeed(analogRead(0));
 

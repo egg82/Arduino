@@ -9,8 +9,8 @@
 
 class LEDController {
     private:
-    IEffect *effect;
-    IEffect *previousEffect;
+    IEffect *effect = NULL;
+    IEffect *previousEffect = NULL;
     void display();
     public:
     LEDController();
