@@ -15,6 +15,9 @@ LEDController::LEDController() {
 }
 
 void LEDController::setEffect(IEffect *effect) {
+    if (this->previousEffect != NULL) {
+        delete this->previousEffect;
+    }
     this->previousEffect = this->effect;
     this->effect = effect;
 }
