@@ -106,3 +106,5 @@ IEffect *getEffect(Effect effect) {
         return new RadiateRandColor();
     }
 }
+
+ISR(TIMER1_OVF_vect) { TCNT1 = audioController->loop(); }

@@ -6,5 +6,6 @@
 class AudioController {
     public:
     AudioController();
+    unsigned int loop();
 };
 #endif
