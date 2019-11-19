@@ -27,8 +27,7 @@ Effect currentEffect;
 void setup() {
     Serial.begin(115200);
     delay(5000);
-    random16_set_seed(analogRead(1));
-    randomSeed(analogRead(0));
+    setSeeds(getNoise());
 
     audioController = new AudioController();
 
@@ -53,13 +52,14 @@ void loop() {
 
     // Ensure we don't switch effects too quickly
     int mills = millis() - lastRandTime;
-    if (isSet && (mills >= 30000 || (mills >= 15000 && randFloat((float) mills, 30000.0F) >= 0.01F))) {
+    if (isSet && (mills >= 30000 || (mills >= 15000 && randFloat() <= 0.01F))) {
         // Ensure we get a different random function
         do {
             Effect e = static_cast<Effect>(random(0, NONE));
             if (e != currentEffect) {
                 currentEffect = e;
                 ledController->setEffect(getEffect(e));
+                setSeeds(getNoise());
                 break;
             }
         } while (true);
@@ -67,7 +67,30 @@ void loop() {
     }
 }
 
-float randFloat(float mills, float maxMills) { return ((float) random(0, RAND_MAX) / (float) RAND_MAX) * (mills / maxMills); }
+float randFloat() { return (float) random(0, RAND_MAX) / (float) RAND_MAX; }
+
+float getNoise() {
+    float retVal = 0.0F;
+    do {
+        retVal += analogRead(1);
+        retVal += analogRead(2);
+        retVal += analogRead(3);
+        retVal += analogRead(4);
+        retVal += analogRead(5);
+        if (retVal != 0.0F) {
+            retVal /= 5.0F;
+            while (floor(retVal) != retVal) {
+                retVal *= 10.0F;
+            }
+            return retVal;
+        }
+    } while (true);
+}
+
+void setSeeds(float seed) {
+    random16_set_seed(seed);
+    randomSeed(seed);
+}
 
 IEffect *getEffect(Effect effect) {
     switch (effect) {
