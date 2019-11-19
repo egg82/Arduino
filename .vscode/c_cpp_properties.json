@@ -4,8 +4,8 @@
             "name": "Linux",
             "includePath": [
                 "/home/alex/Arduino/libraries/arduinoFFT/src",
-                "/home/alex/Arduino/libraries/fix_fft/src",
                 "/home/alex/Arduino/libraries/FastLED",
+                "/home/alex/Arduino/libraries/audio-hacker-master",
                 "/home/alex/Arduino/*/src/**",
                 "/home/alex/arduino-1.8.10/tools/**",
                 "/home/alex/arduino-1.8.10/hardware/arduino/avr/**",

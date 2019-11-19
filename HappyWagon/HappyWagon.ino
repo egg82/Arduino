@@ -1,3 +1,5 @@
+#include "src/Audio/AudioController.h"
+
 #include "src/LED/LEDController.h"
 #include "src/LED/Effects/IEffect.h"
 #include "src/LED/Effects/Blink.h"
@@ -6,6 +8,7 @@
 #include "src/LED/Effects/PongRandColor.h"
 #include "src/LED/Effects/RadiateRandColor.h"
 
+AudioController *audioController;
 LEDController *ledController;
 
 unsigned long lastRandTime;
@@ -25,6 +28,8 @@ void setup() {
     Serial.begin(115200);
     random16_set_seed(analogRead(1));
     randomSeed(analogRead(0));
+
+    audioController = new AudioController();
 
     ledController = new LEDController();
     ledController->clear(CHSV(random8(), 255, 0));
