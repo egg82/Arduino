@@ -19,8 +19,6 @@ void PongRandColor::setup(CHSV leds[]) {
     if (maxBrightness) {
         isSet = true;
     }
-
-    delay(10);
 }
 
 void PongRandColor::destroy(CHSV leds[]) {
@@ -63,6 +61,4 @@ void PongRandColor::loop(CHSV leds[]) {
             leds[i].h = hue;
         }
     }
-
-    delay(50);
 }

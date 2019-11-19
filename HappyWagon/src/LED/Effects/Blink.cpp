@@ -19,8 +19,6 @@ void Blink::setup(CHSV leds[]) {
     if (maxBrightness) {
         isSet = true;
     }
-
-    delay(10);
 }
 
 void Blink::destroy(CHSV leds[]) {
@@ -34,6 +32,4 @@ void Blink::loop(CHSV leds[]) {
     for (int i = 0; i < NUM_LEDS; i++) {
         leds[i].v = (leds[i].v == 255) ? 0 : 255;
     }
-    
-    delay(500);
 }

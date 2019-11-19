@@ -13,6 +13,7 @@ class RadiateRandColor : public IEffect {
     int tailLength = NUM_LEDS / 5;
     public:
     RadiateRandColor();
+    bool canLoop(unsigned long delta) { return !isSet ? delta >= 10 : delta >= 50; }
     bool isSetup() { return isSet; }
     void setup(CHSV leds[]);
     void loop(CHSV leds[]);

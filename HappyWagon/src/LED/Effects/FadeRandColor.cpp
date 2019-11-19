@@ -19,8 +19,6 @@ void FadeRandColor::setup(CHSV leds[]) {
     if (maxBrightness) {
         isSet = true;
     }
-
-    delay(10);
 }
 
 void FadeRandColor::destroy(CHSV leds[]) {
@@ -35,8 +33,6 @@ void FadeRandColor::destroy(CHSV leds[]) {
     if (maxBrightness) {
         destroyed = true;
     }
-
-    delay(10);
 }
 
 void FadeRandColor::loop(CHSV leds[]) {
@@ -52,6 +48,4 @@ void FadeRandColor::loop(CHSV leds[]) {
             leds[i].h = hue;
         }
     }
-
-    delay(10);
 }

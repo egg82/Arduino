@@ -29,42 +29,42 @@ void setup() {
     delay(5000);
     setSeeds(getNoise());
 
-    audioController = new AudioController();
-
     ledController = new LEDController();
     ledController->clear(CHSV(random8(), 255, 0));
     currentEffect = static_cast<Effect>(random(0, NONE));
     ledController->setEffect(getEffect(currentEffect));
 
     lastRandTime = millis();
+
+    audioController = new AudioController();
 }
 
 bool isSet = false;
 
 void loop() {
-    ledController->loop();
+    if (ledController->loop()) {
+        // Account for time taken during setup when calculating for effect switch
+        if (!isSet && ledController->isSetup()) {
+            isSet = true;
+            lastRandTime = millis();
+        }
 
-    // Account for time taken during setup when calculating for effect switch
-    if (!isSet && ledController->isSetup()) {
-        isSet = true;
-        lastRandTime = millis();
-    }
-
-    // Ensure we don't switch effects too quickly
-    int mills = millis() - lastRandTime;
-    if (isSet && (mills >= 30000 || (mills >= 15000 && randFloat() <= 0.01F))) {
-        // Ensure we get a different random function
-        do {
-            Effect e = static_cast<Effect>(random(0, NONE));
-            if (e != currentEffect) {
-                currentEffect = e;
-                ledController->setEffect(getEffect(e));
-                setSeeds(getNoise());
-                break;
-            }
-        } while (true);
-        isSet = false;
-    }
+        // Ensure we don't switch effects too quickly
+        int mills = millis() - lastRandTime;
+        if (isSet && (mills >= 30000 || (mills >= 15000 && randFloat() <= 0.01F))) {
+            // Ensure we get a different random function
+            do {
+                Effect e = static_cast<Effect>(random(0, NONE));
+                if (e != currentEffect) {
+                    currentEffect = e;
+                    ledController->setEffect(getEffect(e));
+                    setSeeds(getNoise());
+                    break;
+                }
+            } while (true);
+            isSet = false;
+        }
+    }    
 }
 
 float randFloat() { return (float) random(0, RAND_MAX) / (float) RAND_MAX; }

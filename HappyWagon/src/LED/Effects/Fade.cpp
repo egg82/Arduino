@@ -19,8 +19,6 @@ void Fade::setup(CHSV leds[]) {
     if (maxBrightness) {
         isSet = true;
     }
-
-    delay(10);
 }
 
 void Fade::destroy(CHSV leds[]) {
@@ -35,8 +33,6 @@ void Fade::destroy(CHSV leds[]) {
     if (maxBrightness) {
         destroyed = true;
     }
-
-    delay(10);
 }
 
 void Fade::loop(CHSV leds[]) {
@@ -48,6 +44,4 @@ void Fade::loop(CHSV leds[]) {
     } else if (leds[0].v == 0) {
         fadeReverse = false;
     }
-
-    delay(10);
 }

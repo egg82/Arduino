@@ -23,8 +23,6 @@ void RadiateRandColor::setup(CHSV leds[]) {
             middleLED += 1;
         }
     }
-
-    delay(10);
 }
 
 void RadiateRandColor::destroy(CHSV leds[]) {
@@ -77,6 +75,4 @@ void RadiateRandColor::loop(CHSV leds[]) {
         }
     }
     currentLED++;
-
-    delay(50);
 }

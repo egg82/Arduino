@@ -6,10 +6,12 @@
 
 CHSV leds[NUM_LEDS];
 CRGB c[NUM_LEDS];
+unsigned long lastMills;
 
 LEDController::LEDController() {
     FastLED.addLeds<LED_TYPE, PIN, COLOR_ORDER>(c, NUM_LEDS).setCorrection(TypicalLEDStrip);
     FastLED.setBrightness(BRIGHTNESS);
+    lastMills = millis();
 }
 
 void LEDController::setEffect(IEffect *effect) {
@@ -20,17 +22,28 @@ void LEDController::setEffect(IEffect *effect) {
     this->effect = effect;
 }
 
-void LEDController::loop() {
+bool LEDController::loop() {
+    unsigned long mills = millis();
     if (previousEffect != NULL && !previousEffect->isDestroyed()) {
-        previousEffect->destroy(leds);
+        if (previousEffect->canLoop(mills - lastMills)) {
+            previousEffect->destroy(leds);
+            lastMills = mills;
+            display();
+            return true;
+        }
     } else {
-        if (!effect->isSetup()) {
-            effect->setup(leds);
-        } else {
-            effect->loop(leds);
+        if (effect->canLoop(mills - lastMills)) {
+            if (!effect->isSetup()) {
+                effect->setup(leds);
+            } else {
+                effect->loop(leds);
+            }
+            lastMills = mills;
+            display();
+            return true;
         }
     }
-    display();
+    return false;
 }
 
 void LEDController::clear(CHSV color) {

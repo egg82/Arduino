@@ -10,6 +10,7 @@ class FadeRandColor : public IEffect {
     bool fadeReverse = false;
     public:
     FadeRandColor();
+    bool canLoop(unsigned long delta) { return delta >= 10; }
     bool isSetup() { return isSet; }
     void setup(CHSV leds[]);
     void loop(CHSV leds[]);
