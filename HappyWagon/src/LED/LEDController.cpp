@@ -22,8 +22,7 @@ void LEDController::setEffect(IEffect *effect) {
     this->effect = effect;
 }
 
-bool LEDController::loop() {
-    unsigned long mills = millis();
+bool LEDController::loop(unsigned long mills, volatile double vReal[]) {
     if (previousEffect != NULL && !previousEffect->isDestroyed()) {
         if (previousEffect->canLoop(mills - lastMills)) {
             previousEffect->destroy(leds);

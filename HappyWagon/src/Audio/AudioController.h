@@ -2,10 +2,15 @@
 #define AudioController_h
 
 #include <AudioHacker.h>
+//#include <FHT.h>
+
+#define SAMPLES 32
 
 class AudioController {
+    private:
+    unsigned int buf;
     public:
     AudioController();
-    unsigned int loop();
+    void loop(bool evenCycle);
 };
 #endif

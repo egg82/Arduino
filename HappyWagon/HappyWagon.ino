@@ -11,7 +11,17 @@
 AudioController *audioController;
 LEDController *ledController;
 
-unsigned long lastRandTime;
+unsigned long lastRandTime = 0;
+
+unsigned int sampleRate = DEFAULT_SAMPLE_RATE;
+unsigned int timerStart = UINT16_MAX - (F_CPU / sampleRate);
+
+#define DO_DEBUG
+unsigned long lastDebugPrint = 0;
+volatile unsigned int timerEndEven;
+volatile unsigned int timerEndOdd;
+volatile double *vReal;
+bool evenCycle = true;
 
 enum Effect {
     BLINK,
@@ -42,16 +52,18 @@ void setup() {
 bool isSet = false;
 
 void loop() {
-    if (ledController->loop()) {
+    unsigned long mills = millis();
+
+    if (ledController->loop(mills, vReal)) {
         // Account for time taken during setup when calculating for effect switch
         if (!isSet && ledController->isSetup()) {
             isSet = true;
-            lastRandTime = millis();
+            lastRandTime = mills;
         }
 
         // Ensure we don't switch effects too quickly
-        int mills = millis() - lastRandTime;
-        if (isSet && (mills >= 30000 || (mills >= 15000 && randFloat() <= 0.01F))) {
+        unsigned long m = mills - lastRandTime;
+        if (isSet && (m >= 30000 || (m >= 15000 && randFloat() <= 0.01F))) {
             // Ensure we get a different random function
             do {
                 Effect e = static_cast<Effect>(random(0, NONE));
@@ -64,7 +76,29 @@ void loop() {
             } while (true);
             isSet = false;
         }
-    }    
+    }
+
+    #ifdef DO_DEBUG
+    if ((mills - lastDebugPrint) >= 1000) {
+        lastDebugPrint = mills;
+
+        // Print the number of instruction cycles remaining at the end of the ISR.
+        // The more work you try to do in the ISR, the lower this number will become.
+        // If the number of cycles remaining reaches 0, then the ISR will take up
+        // all the CPU time and the code in loop() will not run.
+
+        Serial.print("even cycles remaining = ");
+        Serial.print(UINT16_MAX - timerEndEven);
+        Serial.print("   odd cycles remaining = ");
+        Serial.print(UINT16_MAX - timerEndOdd);
+        Serial.println();
+        if (((UINT16_MAX - timerEndEven) < 20) || (((UINT16_MAX - timerEndOdd) < 20))) {
+            Serial.println("WARNING: ISR execution time is too long. Reduce sample rate or reduce the amount of code in the ISR.");
+        }
+    }
+    #endif
+
+    //timerStart = UINT16_MAX - (F_CPU / sampleRate);
 }
 
 float randFloat() { return (float) random(0, RAND_MAX) / (float) RAND_MAX; }
@@ -93,6 +127,8 @@ void setSeeds(float seed) {
 }
 
 IEffect *getEffect(Effect effect) {
+    Serial.print("Using effect ");
+    Serial.println(effect);
     switch (effect) {
         case BLINK:
         return new Blink();
@@ -107,4 +143,16 @@ IEffect *getEffect(Effect effect) {
     }
 }
 
-ISR(TIMER1_OVF_vect) { TCNT1 = audioController->loop(); }
+ISR(TIMER1_OVF_vect) {
+    TCNT1 = timerStart;
+    audioController->loop(evenCycle);
+
+    #ifdef DO_DEBUG
+    if (evenCycle) {
+        timerEndEven = TCNT1;
+    } else {
+        timerEndOdd = TCNT1;
+    }
+    evenCycle = !evenCycle;
+    #endif
+}
