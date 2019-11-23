@@ -1,17 +1,8 @@
 #include "src/Audio/AudioController.h"
 
-#include "src/LED/LEDController.h"
-#include "src/LED/Effects/IEffect.h"
-#include "src/LED/Effects/Blink.h"
-#include "src/LED/Effects/Fade.h"
-#include "src/LED/Effects/FadeRandColor.h"
-#include "src/LED/Effects/PongRandColor.h"
-#include "src/LED/Effects/RadiateRandColor.h"
+#include <Wire.h>
 
 AudioController *audioController;
-LEDController *ledController;
-
-unsigned long lastRandTime = 0;
 
 unsigned int sampleRate = DEFAULT_SAMPLE_RATE;
 unsigned int timerStart = UINT16_MAX - (F_CPU / sampleRate);
@@ -20,65 +11,39 @@ unsigned int timerStart = UINT16_MAX - (F_CPU / sampleRate);
 unsigned long lastDebugPrint = 0;
 volatile unsigned int timerEndEven;
 volatile unsigned int timerEndOdd;
-volatile double *vReal;
 bool evenCycle = true;
 
-enum Effect {
-    BLINK,
-    FADE,
-    FADE_RAND_COLOR,
-    PONG_RAND_COLOR,
-    RADIATE_RAND_COLOR,
-    NONE
-};
-
-Effect currentEffect;
+volatile bool ready = false;
 
 void setup() {
     Serial.begin(115200);
-    delay(5000);
-    setSeeds(getNoise());
+    Wire.begin();
 
-    ledController = new LEDController();
-    ledController->clear(CHSV(random8(), 255, 0));
-    currentEffect = static_cast<Effect>(random(0, NONE));
-    ledController->setEffect(getEffect(currentEffect));
-
-    lastRandTime = millis();
-
+    Serial.println("Setting up audio");
+    delay(1000);
     audioController = new AudioController();
+    delay(1000);
+    Serial.println("Set up audio");
 }
 
-bool isSet = false;
-
 void loop() {
-    unsigned long mills = millis();
-
-    if (ledController->loop(mills, vReal)) {
-        // Account for time taken during setup when calculating for effect switch
-        if (!isSet && ledController->isSetup()) {
-            isSet = true;
-            lastRandTime = mills;
+    if (!audioController->getDoubleBuffer().getBackBuffer().isEmpty()) {
+        audioController->getDoubleBuffer().swapBuffers();
+        uint16_t numBytes = 0;
+        Wire.beginTransmission(4);
+        while (!audioController->getDoubleBuffer().getCurrentBuffer().isEmpty()) {
+            Wire.write(audioController->getDoubleBuffer().getCurrentBuffer().shift());
+            numBytes++;
         }
+        Wire.endTransmission();
 
-        // Ensure we don't switch effects too quickly
-        unsigned long m = mills - lastRandTime;
-        if (isSet && (m >= 30000 || (m >= 15000 && randFloat() <= 0.01F))) {
-            // Ensure we get a different random function
-            do {
-                Effect e = static_cast<Effect>(random(0, NONE));
-                if (e != currentEffect) {
-                    currentEffect = e;
-                    ledController->setEffect(getEffect(e));
-                    setSeeds(getNoise());
-                    break;
-                }
-            } while (true);
-            isSet = false;
-        }
+        /*Serial.print("wrote ");
+        Serial.print(numBytes);
+        Serial.println(" bytes");*/
     }
 
     #ifdef DO_DEBUG
+    unsigned long mills = millis();
     if ((mills - lastDebugPrint) >= 1000) {
         lastDebugPrint = mills;
 
@@ -101,58 +66,14 @@ void loop() {
     //timerStart = UINT16_MAX - (F_CPU / sampleRate);
 }
 
-float randFloat() { return (float) random(0, RAND_MAX) / (float) RAND_MAX; }
-
-float getNoise() {
-    float retVal = 0.0F;
-    do {
-        retVal += analogRead(1);
-        retVal += analogRead(2);
-        retVal += analogRead(3);
-        retVal += analogRead(4);
-        retVal += analogRead(5);
-        if (retVal != 0.0F) {
-            retVal /= 5.0F;
-            while (floor(retVal) != retVal) {
-                retVal *= 10.0F;
-            }
-            return retVal;
-        }
-    } while (true);
-}
-
-void setSeeds(float seed) {
-    random16_set_seed(seed);
-    randomSeed(seed);
-}
-
-IEffect *getEffect(Effect effect) {
-    Serial.print("Using effect ");
-    Serial.println(effect);
-    switch (effect) {
-        case BLINK:
-        return new Blink();
-        case FADE:
-        return new Fade();
-        case FADE_RAND_COLOR:
-        return new FadeRandColor();
-        case PONG_RAND_COLOR:
-        return new PongRandColor();
-        case RADIATE_RAND_COLOR:
-        return new RadiateRandColor();
-    }
-}
-
 ISR(TIMER1_OVF_vect) {
     TCNT1 = timerStart;
     audioController->loop(evenCycle);
 
-    #ifdef DO_DEBUG
     if (evenCycle) {
         timerEndEven = TCNT1;
     } else {
         timerEndOdd = TCNT1;
     }
     evenCycle = !evenCycle;
-    #endif
 }

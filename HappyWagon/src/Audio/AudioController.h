@@ -2,15 +2,16 @@
 #define AudioController_h
 
 #include <AudioHacker.h>
-//#include <FHT.h>
+#include "../DoubleBuffer.h"
 
-#define SAMPLES 32
+#define AUDIO_BUFFER_SIZE 512
 
 class AudioController {
     private:
-    unsigned int buf;
+    DoubleBuffer<uint8_t, AUDIO_BUFFER_SIZE> db;
     public:
     AudioController();
+    DoubleBuffer<uint8_t, AUDIO_BUFFER_SIZE> &getDoubleBuffer() { return db; }
     void loop(bool evenCycle);
 };
 #endif

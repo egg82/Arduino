@@ -16,7 +16,7 @@ class LEDController {
     LEDController();
     void setEffect(IEffect *effect);
     IEffect *getEffect() { return effect; };
-    bool loop(unsigned long mills, volatile double vReal[]);
+    bool loop(unsigned long mills, uint8_t fht[]);
     bool isSetup() { return this->effect->isSetup(); }
     bool isDestroyed() { return this->effect->isDestroyed(); }
 

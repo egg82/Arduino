@@ -1,14 +1,14 @@
 #include "AudioController.h"
 
+#include <Wire.h>
+
 AudioController::AudioController() { AudioHacker.begin(); }
 
 void AudioController::loop(bool evenCycle) {
-    unsigned int signal = AudioHacker.readADC();
-    AudioHacker.writeDAC(signal);
+    unsigned int read = AudioHacker.readADC();
+    AudioHacker.writeDAC(read);
 
-    if (evenCycle) {
-        buf = signal;
-    } else {
-        
+    if (!evenCycle) {
+        db.getBackBuffer().push(read >> 4);
     }
 }

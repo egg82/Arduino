@@ -3,7 +3,8 @@
         {
             "name": "Linux",
             "includePath": [
-                "/home/alex/Arduino/libraries/arduinoFFT/src",
+                "/home/alex/Arduino/libraries/CircularBuffer",
+                "/home/alex/Arduino/libraries/FHT",
                 "/home/alex/Arduino/libraries/FastLED",
                 "/home/alex/Arduino/libraries/audio-hacker-master",
                 "/home/alex/Arduino/*/src/**",
