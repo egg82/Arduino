@@ -59,7 +59,7 @@ void loop() {
         fht_run();
         //fht_mag_lin8();
         fht_mag_log();
-        for (int i = 0; i < FHT_N /2; i++) {
+        for (int i = 0; i < FHT_N / 2; i++) {
             max = max(max, fht_log_out[i]);
         }
         for (int i = 0; i < FHT_N / 2; i++) {
@@ -146,13 +146,17 @@ void receive(int bytes) {
     while (Wire.available() >= 2) {
         byte m = Wire.read();
         byte j = Wire.read();
-        int k = (j << 8) | m;
-        fht_input[currentPos] = (k - 0x0200) << 6;
-        if (currentPos >= FHT_N - 1) {
-            currentPos = 0;
-            ready = true;
-        } else {
-            currentPos += 1;
+        if (!ready) {
+            // Combine two uint8_t into one uint16_t
+            int k = (j << 8) | m;
+            // Convert signed to unsigned
+            fht_input[currentPos] = (k - 0x0200) << 6;
+            if (currentPos >= FHT_N - 1) {
+                currentPos = 0;
+                ready = true;
+            } else {
+                currentPos += 1;
+            }
         }
     }
 }

@@ -35,6 +35,7 @@ void loop() {
         Wire.beginTransmission(4);
         while (!audioController->getDoubleBuffer().getCurrentBuffer().isEmpty()) {
             uint16_t read = audioController->getDoubleBuffer().getCurrentBuffer().shift();
+            // Split uint16_t into two uint8_t
             Wire.write((read >> 8) & 0xFF);
             Wire.write(read & 0xFF);
             numBytes++;

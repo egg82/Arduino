@@ -12,6 +12,6 @@ void TestAudio::destroy(CHSV leds[], uint8_t fht[], uint8_t max) {
 
 void TestAudio::loop(CHSV leds[], uint8_t fht[], uint8_t max) {
     for (int i = 0; i < NUM_LEDS; i++) {
-        leds[i].v = ((double) fht[i + 2] / (double) max) * 255.0;
+        leds[i].v = ((double) fht[i] / (double) max) * 255.0;
     }
 }
