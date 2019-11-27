@@ -1,5 +1,6 @@
 #define FHT_N 256
-#define LIN_OUT8 1
+//#define LIN_OUT8 1
+#define LOG_OUT 1
 
 #include <FHT.h>
 #include <Wire.h>
@@ -11,14 +12,16 @@
 #include "src/LED/Effects/FadeRandColor.h"
 #include "src/LED/Effects/PongRandColor.h"
 #include "src/LED/Effects/RadiateRandColor.h"
+#include "src/LED/Effects/TestAudio.h"
 
-LEDController *ledController;
 uint16_t currentPos = 0;
+LEDController *ledController;
 
 unsigned long lastRandTime = 0;
 bool isSet = false;
 
 volatile bool ready = false;
+uint8_t max = 0;
 
 enum Effect {
     BLINK,
@@ -35,6 +38,7 @@ void setup() {
     Serial.begin(115200);
     Wire.begin(4);
     Wire.onReceive(receive);
+    Wire.setTimeout(1000);
 
     setSeeds(getNoise());
 
@@ -48,16 +52,30 @@ void setup() {
 
 void loop() {
     if (ready) {
-        Serial.println("FHT");
+        max = 0;
+        //Serial.println("FHT");
         fht_window();
         fht_reorder();
         fht_run();
-        fht_mag_lin8();
+        //fht_mag_lin8();
+        fht_mag_log();
+        for (int i = 0; i < FHT_N /2; i++) {
+            max = max(max, fht_log_out[i]);
+        }
+        for (int i = 0; i < FHT_N / 2; i++) {
+            char buffer[64];
+            sprintf(buffer, "%03d", fht_log_out[i]);
+            Serial.print(buffer);
+            Serial.print(",");
+            //Serial.print(fht_log_out[i], 2);
+            //Serial.print(",");
+        }
+        Serial.println();
         ready = false;
     }
 
     unsigned long mills = millis();
-    if (ledController->loop(mills, fht_lin_out8)) {
+    if (ledController->loop(mills, fht_log_out, max)) {
         // Account for time taken during setup when calculating for effect switch
         if (!isSet && ledController->isSetup()) {
             isSet = true;
@@ -107,7 +125,7 @@ float getNoise() {
 }
 
 IEffect *getEffect(Effect effect) {
-    Serial.print("Using effect ");
+    /*Serial.print("Using effect ");
     Serial.println(effect);
     switch (effect) {
         case BLINK:
@@ -120,17 +138,21 @@ IEffect *getEffect(Effect effect) {
         return new PongRandColor();
         case RADIATE_RAND_COLOR:
         return new RadiateRandColor();
-    }
+    }*/
+    return new TestAudio();
 }
 
 void receive(int bytes) {
-    while (Wire.available()) {
-        fht_input[currentPos] = Wire.read();
+    while (Wire.available() >= 2) {
+        byte m = Wire.read();
+        byte j = Wire.read();
+        int k = (j << 8) | m;
+        fht_input[currentPos] = (k - 0x0200) << 6;
         if (currentPos >= FHT_N - 1) {
             currentPos = 0;
             ready = true;
         } else {
-            currentPos++;
+            currentPos += 1;
         }
     }
 }

@@ -20,23 +20,21 @@ void LEDController::setEffect(IEffect *effect) {
     }
     previousEffect = this->effect;
     this->effect = effect;
+    isSet = false;
 }
 
-bool LEDController::loop(unsigned long mills, uint8_t fht[]) {
+bool LEDController::loop(unsigned long mills, uint8_t fht[], uint8_t max) {
     if (previousEffect != NULL && !previousEffect->isDestroyed()) {
         if (previousEffect->canLoop(mills - lastMills)) {
-            previousEffect->destroy(leds);
+            previousEffect->destroy(leds, fht, max);
             lastMills = mills;
             display();
             return true;
         }
     } else {
+        isSet = true;
         if (effect->canLoop(mills - lastMills)) {
-            if (!effect->isSetup()) {
-                effect->setup(leds);
-            } else {
-                effect->loop(leds);
-            }
+            effect->loop(leds, fht, max);
             lastMills = mills;
             display();
             return true;

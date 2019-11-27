@@ -3,32 +3,14 @@
 
 PongRandColor::PongRandColor() { }
 
-void PongRandColor::setup(CHSV leds[]) {
-    bool maxBrightness = true;
-    for (int i = 0; i < NUM_LEDS; i++) {
-        if (leds[i].s != 255) {
-            leds[i].s++;
-            maxBrightness = false;
-        }
-        if (leds[i].v != 0) {
-            leds[i].v--;
-            maxBrightness = false;
-        }
-    }
-
-    if (maxBrightness) {
-        isSet = true;
-    }
-}
-
-void PongRandColor::destroy(CHSV leds[]) {
+void PongRandColor::destroy(CHSV leds[], uint8_t fht[], uint8_t max) {
     for (int i = 0; i < NUM_LEDS; i++) {
         leds[i].v = 0;
     }
     destroyed = true;
 }
 
-void PongRandColor::loop(CHSV leds[]) {
+void PongRandColor::loop(CHSV leds[], uint8_t fht[], uint8_t max) {
     leds[currentLED].v = 0;
     if (pongReverse) {
         currentLED--;

@@ -7,7 +7,7 @@ AudioController *audioController;
 unsigned int sampleRate = DEFAULT_SAMPLE_RATE;
 unsigned int timerStart = UINT16_MAX - (F_CPU / sampleRate);
 
-#define DO_DEBUG
+//#define DO_DEBUG
 unsigned long lastDebugPrint = 0;
 volatile unsigned int timerEndEven;
 volatile unsigned int timerEndOdd;
@@ -18,6 +18,8 @@ volatile bool ready = false;
 void setup() {
     Serial.begin(115200);
     Wire.begin();
+    Wire.flush();
+    Wire.setTimeout(1000);
 
     Serial.println("Setting up audio");
     delay(1000);
@@ -32,13 +34,15 @@ void loop() {
         uint16_t numBytes = 0;
         Wire.beginTransmission(4);
         while (!audioController->getDoubleBuffer().getCurrentBuffer().isEmpty()) {
-            Wire.write(audioController->getDoubleBuffer().getCurrentBuffer().shift());
+            uint16_t read = audioController->getDoubleBuffer().getCurrentBuffer().shift();
+            Wire.write((read >> 8) & 0xFF);
+            Wire.write(read & 0xFF);
             numBytes++;
         }
         Wire.endTransmission();
 
         /*Serial.print("wrote ");
-        Serial.print(numBytes);
+        Serial.print(numBytes * 2);
         Serial.println(" bytes");*/
     }
 
@@ -70,10 +74,12 @@ ISR(TIMER1_OVF_vect) {
     TCNT1 = timerStart;
     audioController->loop(evenCycle);
 
+    #ifdef DO_DEBUG
     if (evenCycle) {
         timerEndEven = TCNT1;
     } else {
         timerEndOdd = TCNT1;
     }
+    #endif
     evenCycle = !evenCycle;
 }

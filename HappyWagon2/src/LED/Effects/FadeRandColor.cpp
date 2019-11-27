@@ -3,25 +3,7 @@
 
 FadeRandColor::FadeRandColor() { }
 
-void FadeRandColor::setup(CHSV leds[]) {
-    bool maxBrightness = true;
-    for (int i = 0; i < NUM_LEDS; i++) {
-        if (leds[i].s != 255) {
-            leds[i].s++;
-            maxBrightness = false;
-        }
-        if (leds[i].v != 0) {
-            leds[i].v--;
-            maxBrightness = false;
-        }
-    }
-
-    if (maxBrightness) {
-        isSet = true;
-    }
-}
-
-void FadeRandColor::destroy(CHSV leds[]) {
+void FadeRandColor::destroy(CHSV leds[], uint8_t fht[], uint8_t max) {
     bool maxBrightness = true;
     for (int i = 0; i < NUM_LEDS; i++) {
         if (leds[i].v != 0) {
@@ -35,7 +17,7 @@ void FadeRandColor::destroy(CHSV leds[]) {
     }
 }
 
-void FadeRandColor::loop(CHSV leds[]) {
+void FadeRandColor::loop(CHSV leds[], uint8_t fht[], uint8_t max) {
     for (int i = 0; i < NUM_LEDS; i++) {
         leds[i].v = (fadeReverse) ? leds[i].v - 1 : leds[i].v + 1;
     }

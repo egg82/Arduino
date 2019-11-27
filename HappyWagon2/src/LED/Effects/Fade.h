@@ -5,16 +5,13 @@
 
 class Fade : public IEffect {
     private:
-    bool isSet = false;
     bool destroyed = false;
     bool fadeReverse = false;
     public:
     Fade();
     bool canLoop(unsigned long delta) { return delta >= 10; }
-    bool isSetup() { return isSet; }
-    void setup(CHSV leds[]);
-    void loop(CHSV leds[]);
-    void destroy(CHSV leds[]);
+    void loop(CHSV leds[], uint8_t fht[], uint8_t max);
+    void destroy(CHSV leds[], uint8_t fht[], uint8_t max);
     bool isDestroyed() { return destroyed; }
 };
 

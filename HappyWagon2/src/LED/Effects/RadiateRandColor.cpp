@@ -3,36 +3,14 @@
 
 RadiateRandColor::RadiateRandColor() { }
 
-void RadiateRandColor::setup(CHSV leds[]) {
-    bool maxBrightness = true;
-    for (int i = 0; i < NUM_LEDS; i++) {
-        if (leds[i].s != 255) {
-            leds[i].s++;
-            maxBrightness = false;
-        }
-        if (leds[i].v != 0) {
-            leds[i].v--;
-            maxBrightness = false;
-        }
-    }
-
-    if (maxBrightness) {
-        isSet = true;
-        middleLED = NUM_LEDS / 2;
-        if (NUM_LEDS % 2 != 0) {
-            middleLED += 1;
-        }
-    }
-}
-
-void RadiateRandColor::destroy(CHSV leds[]) {
+void RadiateRandColor::destroy(CHSV leds[], uint8_t fht[], uint8_t max) {
     for (int i = 0; i < NUM_LEDS; i++) {
         leds[i].v = 0;
     }
     destroyed = true;
 }
 
-void RadiateRandColor::loop(CHSV leds[]) {
+void RadiateRandColor::loop(CHSV leds[], uint8_t fht[], uint8_t max) {
     if (currentLED >= middleLED) {
         currentLED = 0;
         uint8_t hue = random8();

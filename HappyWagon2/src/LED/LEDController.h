@@ -9,6 +9,7 @@
 
 class LEDController {
     private:
+    bool isSet = false;
     IEffect *effect = NULL;
     IEffect *previousEffect = NULL;
     void display();
@@ -16,8 +17,8 @@ class LEDController {
     LEDController();
     void setEffect(IEffect *effect);
     IEffect *getEffect() { return effect; };
-    bool loop(unsigned long mills, uint8_t fht[]);
-    bool isSetup() { return this->effect->isSetup(); }
+    bool loop(unsigned long mills, uint8_t fht[], uint8_t max);
+    bool isSetup() { return isSet; }
     bool isDestroyed() { return this->effect->isDestroyed(); }
 
     void clear(CHSV color);

@@ -5,15 +5,12 @@
 
 class Blink : public IEffect {
     private:
-    bool isSet = false;
     bool destroyed = false;
     public:
     Blink();
-    bool canLoop(unsigned long delta) { return !isSet ? delta >= 10 : delta >= 500; }
-    bool isSetup() { return isSet; }
-    void setup(CHSV leds[]);
-    void loop(CHSV leds[]);
-    void destroy(CHSV leds[]);
+    bool canLoop(unsigned long delta) { return delta >= 500; }
+    void loop(CHSV leds[], uint8_t fht[], uint8_t max);
+    void destroy(CHSV leds[], uint8_t fht[], uint8_t max);
     bool isDestroyed() { return destroyed; }
 };
 
