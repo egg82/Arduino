@@ -44,13 +44,13 @@ void TestAudio::loop(CHSV leds[], uint8_t fht[], uint8_t max) {
     // ...
     // fht[128] = 21964-22136Hz = ???
 
-    leds[0].v = ((double) fht[0] / (double) max) * 255.0;
-    leds[1].v = ((double) fht[1] / (double) max) * 255.0;
-    leds[2].v = ((double) avg(fht, 2, 3) / (double) max) * 255.0;
-    leds[3].v = ((double) avg(fht, 4, 12) / (double) max) * 255.0;
-    leds[4].v = ((double) avg(fht, 13, 23) / (double) max) * 255.0;
-    leds[5].v = ((double) avg(fht, 24, 35) / (double) max) * 255.0;
-    leds[6].v = ((double) avg(fht, 36, 116) / (double) max) * 255.0;
+    leds[0].v += scale(((double) leds[0].v / (double) max) * 255.0, ((double) fht[0] / (double) max) * 255.0);
+    leds[1].v += scale(((double) leds[1].v / (double) max) * 255.0, ((double) fht[1] / (double) max) * 255.0);
+    leds[2].v += scale(((double) leds[2].v / (double) max) * 255.0, ((double) avg(fht, 2, 3) / (double) max) * 255.0);
+    leds[3].v += scale(((double) leds[3].v / (double) max) * 255.0, ((double) avg(fht, 4, 12) / (double) max) * 255.0);
+    leds[4].v += scale(((double) leds[4].v / (double) max) * 255.0, ((double) avg(fht, 13, 23) / (double) max) * 255.0);
+    leds[5].v += scale(((double) leds[5].v / (double) max) * 255.0, ((double) avg(fht, 24, 35) / (double) max) * 255.0);
+    leds[6].v += scale(((double) leds[6].v / (double) max) * 255.0, ((double) avg(fht, 36, 116) / (double) max) * 255.0);
     
     /*for (int i = 0; i < NUM_LEDS; i++) {
         double newValue = ((double) fht[i] / (double) max) * 255.0;

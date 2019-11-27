@@ -6,8 +6,9 @@
 class TestAudio : public IEffect {
     private:
     bool destroyed = false;
-    double timescale = 0.05;
+    double timescale = 0.1;
     uint8_t avg(uint8_t fht[], uint16_t start, uint16_t end);
+    uint8_t scale(double oldVal, double newVal) { return (newVal - oldVal) * timescale; }
     public:
     TestAudio();
     bool canLoop(unsigned long delta) { return delta >= 10; }

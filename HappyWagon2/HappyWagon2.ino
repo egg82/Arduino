@@ -52,14 +52,14 @@ void setup() {
 
 void loop() {
     if (ready) {
-        max = 0;
+        //max = 0;
         //Serial.println("FHT");
         fht_window();
         fht_reorder();
         fht_run();
         //fht_mag_lin8();
         fht_mag_log();
-        for (int i = 0; i < FHT_N / 2; i++) {
+        /*for (int i = 0; i < FHT_N / 2; i++) {
             max = max(max, fht_log_out[i]);
         }
         for (int i = 0; i < FHT_N / 2; i++) {
@@ -70,7 +70,7 @@ void loop() {
             //Serial.print(fht_log_out[i], 2);
             //Serial.print(",");
         }
-        Serial.println();
+        Serial.println();*/
         ready = false;
     }
 
