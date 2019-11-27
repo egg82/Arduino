@@ -21,24 +21,20 @@ void setup() {
     Wire.flush();
     Wire.setTimeout(1000);
 
-    Serial.println("Setting up audio");
-    delay(1000);
     audioController = new AudioController();
-    delay(1000);
-    Serial.println("Set up audio");
 }
 
 void loop() {
     if (!audioController->getDoubleBuffer().getBackBuffer().isEmpty()) {
         audioController->getDoubleBuffer().swapBuffers();
-        uint16_t numBytes = 0;
+        //uint16_t numBytes = 0;
         Wire.beginTransmission(4);
         while (!audioController->getDoubleBuffer().getCurrentBuffer().isEmpty()) {
-            uint16_t read = audioController->getDoubleBuffer().getCurrentBuffer().shift();
-            // Split uint16_t into two uint8_t
-            Wire.write((read >> 8) & 0xFF);
-            Wire.write(read & 0xFF);
-            numBytes++;
+            int read = audioController->getDoubleBuffer().getCurrentBuffer().shift();
+            // Split uint16_t into two uint8_t little-endian
+            Wire.write((read >> 8) & 0xFF); // low byte
+            Wire.write(read & 0xFF); // high byte
+            //numBytes++;
         }
         Wire.endTransmission();
 

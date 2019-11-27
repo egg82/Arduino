@@ -75,7 +75,7 @@ void loop() {
     }
 
     unsigned long mills = millis();
-    if (ledController->loop(mills, fht_log_out, max)) {
+    if (ledController->loop(mills, fht_log_out, 255)) {
         // Account for time taken during setup when calculating for effect switch
         if (!isSet && ledController->isSetup()) {
             isSet = true;
@@ -144,12 +144,23 @@ IEffect *getEffect(Effect effect) {
 
 void receive(int bytes) {
     while (Wire.available() >= 2) {
-        byte m = Wire.read();
-        byte j = Wire.read();
+        byte m = Wire.read(); // low byte
+        byte j = Wire.read(); // high byte
         if (!ready) {
-            // Combine two uint8_t into one uint16_t
-            int k = (j << 8) | m;
+            // From the example
+            // ADC is unsigned 10-bit (0-1023) big-endian
+            // byte m = ADCL; // ADC low byte (uint8_t)
+            // byte j = ADCH; // ADC high byte (uint8_t)
+            // int k = (j << 8) | m; // combine high + low into uint16_t little-endian
+            // k -= 0x0200; // subtract 512 (-512-511)
+            // k <<= 6; // left-shift to convert 10-bit into 16-bit
+            // fht_input[i] = k; // finally, add 16-bit signed int
+
+            // Combine two uint8_t into one uint16_t little-endian
+            int k = (m << 8) | j;
             // Convert signed to unsigned
+            //fht_input[currentPos] = (k - 0x0200) << 6; // Subtract 512
+            //fht_input[currentPos] = k - 32768;
             fht_input[currentPos] = (k - 0x0200) << 6;
             if (currentPos >= FHT_N - 1) {
                 currentPos = 0;
