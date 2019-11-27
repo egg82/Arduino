@@ -160,8 +160,7 @@ void receive(int bytes) {
             int k = (m << 8) | j;
             // Convert signed to unsigned
             //fht_input[currentPos] = (k - 0x0200) << 6; // Subtract 512
-            //fht_input[currentPos] = k - 32768;
-            fht_input[currentPos] = (k - 0x0200) << 6;
+            fht_input[currentPos] = k - 32768;
             if (currentPos >= FHT_N - 1) {
                 currentPos = 0;
                 ready = true;
