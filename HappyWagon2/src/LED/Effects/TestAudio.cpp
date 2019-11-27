@@ -16,6 +16,15 @@ void TestAudio::loop(CHSV leds[], uint8_t fht[], uint8_t max) {
     // 172.265625Hz / 2 = +-86.1328125Hz for each bin
     // bin 0 starts at 0Hz
 
+    // https://www.teachmeaudio.com/mixing/techniques/audio-spectrum/
+    // sub-bass = 20-60Hz
+    // bass = 60-250Hz
+    // low-midrange = 250-500Hz
+    // midrange = 500-2000Hz
+    // upper-midrage = 2000-4000Hz
+    // presence = 4000-6000Hz
+    // brilliance = 6000-20000Hz
+
     // fht[0] = 0-86Hz = sub-bass
     // fht[1] = 86-258Hz = bass
     // fht[2] = 258-431Hz = low-midrange
