@@ -13,6 +13,7 @@ void AudioController::loop(bool evenCycle) {
         // We could shift 4 left for 16, but this formula scales the result properly rather than padding zeroes
         //read = ((read << 4) & (uint16_t) 0xFFF0) | ((read >> 8) & (uint16_t) 0x000F);
         
+        // Convert 12-bit unsigned to 10-bit unsigned
         db.getBackBuffer().push(read >> 2);
     }
 }

@@ -11,6 +11,11 @@ void TestAudio::destroy(CHSV leds[], uint8_t fht[], uint8_t max) {
 }
 
 void TestAudio::loop(CHSV leds[], uint8_t fht[], uint8_t max) {
+    // We're sampling at half 44100Hz, so 22050Hz
+    // 22050Hz / 128 bins = 172.265625Hz peak at each bin
+    // 172.265625Hz / 2 = +-86.1328125Hz for each bin
+    // bin 0 starts at 0Hz
+
     // fht[0] = 0-86Hz = sub-bass
     // fht[1] = 86-258Hz = bass
     // fht[2] = 258-431Hz = low-midrange
