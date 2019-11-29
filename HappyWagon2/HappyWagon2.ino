@@ -59,10 +59,10 @@ void loop() {
         fht_run();
         //fht_mag_lin8();
         fht_mag_log();
-        /*for (int i = 0; i < FHT_N / 2; i++) {
+        for (int i = 0; i < FHT_N / 2; i++) {
             max = max(max, fht_log_out[i]);
         }
-        for (int i = 0; i < FHT_N / 2; i++) {
+        /*for (int i = 0; i < FHT_N / 2; i++) {
             char buffer[64];
             sprintf(buffer, "%03d", fht_log_out[i]);
             Serial.print(buffer);
@@ -125,7 +125,7 @@ float getNoise() {
 }
 
 IEffect *getEffect(Effect effect) {
-    /*Serial.print("Using effect ");
+    Serial.print("Using effect ");
     Serial.println(effect);
     switch (effect) {
         case BLINK:
@@ -138,8 +138,8 @@ IEffect *getEffect(Effect effect) {
         return new PongRandColor();
         case RADIATE_RAND_COLOR:
         return new RadiateRandColor();
-    }*/
-    return new TestAudio();
+    }
+    //return new TestAudio();
 }
 
 void receive(int bytes) {

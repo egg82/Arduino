@@ -8,7 +8,7 @@ class RadiateRandColor : public IEffect {
     private:
     bool destroyed = false;
     int currentLED = 0;
-    int middleLED = 0;
+    int middleLED = NUM_LEDS / 2;
     int tailLength = NUM_LEDS / 5;
     public:
     RadiateRandColor();

@@ -1,7 +1,11 @@
 #include "RadiateRandColor.h"
 #include "../LEDController.h"
 
-RadiateRandColor::RadiateRandColor() { }
+RadiateRandColor::RadiateRandColor() {
+    if (middleLED % 2 != 0) {
+        middleLED += 1;
+    }
+}
 
 void RadiateRandColor::destroy(CHSV leds[], uint8_t fht[], uint8_t max) {
     for (int i = 0; i < NUM_LEDS; i++) {
