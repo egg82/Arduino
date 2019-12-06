@@ -1,7 +1,0 @@
-{
-    "board": "arduino:avr:nano",
-    "port": "/dev/ttyUSB0",
-    "sketch": "HappyWagon2/HappyWagon2.ino",
-    "programmer": "AVRISP mkII",
-    "configuration": "cpu=atmega328"
-}

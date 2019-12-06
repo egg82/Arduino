@@ -1,10 +1,8 @@
-#define FHT_N 256
-//#define LIN_OUT8 1
-#define LOG_OUT 1
-
-#include <FHT.h>
 #include <Wire.h>
+//#include <arduinoFFT.h>
 
+#include "src/FFT.h"
+//#include "src/DoubleBuffer.h"
 #include "src/LED/LEDController.h"
 #include "src/LED/Effects/IEffect.h"
 #include "src/LED/Effects/Blink.h"
@@ -12,16 +10,30 @@
 #include "src/LED/Effects/FadeRandColor.h"
 #include "src/LED/Effects/PongRandColor.h"
 #include "src/LED/Effects/RadiateRandColor.h"
+#include "src/LED/Effects/TestLights.h"
 #include "src/LED/Effects/TestAudio.h"
 
-uint16_t currentPos = 0;
+//#define SAMPLES 256
+//#define SAMPLING_FREQUENCY 22050
+
+//volatile bool ready = false;
+//arduinoFFT FFT = arduinoFFT();
+FFT *fft;
+
 LEDController *ledController;
 
 unsigned long lastRandTime = 0;
 bool isSet = false;
 
-volatile bool ready = false;
-uint8_t max = 0;
+uint16_t currentPos = 0;
+/*double peak;
+double input[SAMPLES];
+double vReal[SAMPLES];
+double vImag[SAMPLES];
+unsigned long size = sizeof(input[0]) * SAMPLES;*/
+
+unsigned long inputSize;
+unsigned long outputSize;
 
 enum Effect {
     BLINK,
@@ -36,11 +48,15 @@ Effect currentEffect;
 
 void setup() {
     Serial.begin(115200);
-    Wire.begin(4);
+    Wire.begin(0x20);
+    TWBR = 12;
     Wire.onReceive(receive);
-    Wire.setTimeout(1000);
 
     setSeeds(getNoise());
+
+    fft = new FFT();
+    inputSize = sizeof(fft->input[0]) * FFT_SIZE * 2;
+    outputSize = sizeof(fft->input[0]) * FFT_SIZE;
 
     ledController = new LEDController();
     ledController->clear(CHSV(random8(), 255, 0));
@@ -51,31 +67,36 @@ void setup() {
 }
 
 void loop() {
-    if (ready) {
+    /*if (ready) {
         //max = 0;
-        //Serial.println("FHT");
-        fht_window();
-        fht_reorder();
-        fht_run();
-        //fht_mag_lin8();
-        fht_mag_log();
-        for (int i = 0; i < FHT_N / 2; i++) {
-            max = max(max, fht_log_out[i]);
-        }
+        Serial.println("FFT start");
+        Serial.flush();
+        fft->compute();
+        Serial.println("FFT end");
+        Serial.flush();*/
+        /*memcpy(vReal, input, size);
+        memset(vImag, 0, size);
+        FFT.Windowing(vReal, SAMPLES, FFT_WIN_TYP_HAMMING, FFT_FORWARD);
+        FFT.Compute(vReal, vImag, SAMPLES, FFT_FORWARD);
+        FFT.ComplexToMagnitude(vReal, vImag, SAMPLES);
+        peak = FFT.MajorPeak(vReal, SAMPLES, SAMPLING_FREQUENCY);*/
+        /*for(int i = 0; i < (FFT_SIZE / 2); i++) {
+          Serial.println(fft->output[i], 1);
+        }*/
         /*for (int i = 0; i < FHT_N / 2; i++) {
             char buffer[64];
-            sprintf(buffer, "%03d", fht_log_out[i]);
+            sprintf(buffer, "%03d", vReal[i]);
             Serial.print(buffer);
             Serial.print(",");
-            //Serial.print(fht_log_out[i], 2);
+            //Serial.print(vReal[i], 2);
             //Serial.print(",");
         }
         Serial.println();*/
-        ready = false;
-    }
+        //ready = false;
+    //}
 
     unsigned long mills = millis();
-    if (ledController->loop(mills, fht_log_out, 255)) {
+    if (ledController->loop(mills, fft->output, 255)) {
         // Account for time taken during setup when calculating for effect switch
         if (!isSet && ledController->isSetup()) {
             isSet = true;
@@ -125,7 +146,7 @@ float getNoise() {
 }
 
 IEffect *getEffect(Effect effect) {
-    Serial.print("Using effect ");
+    /*Serial.print("Using effect ");
     Serial.println(effect);
     switch (effect) {
         case BLINK:
@@ -138,15 +159,17 @@ IEffect *getEffect(Effect effect) {
         return new PongRandColor();
         case RADIATE_RAND_COLOR:
         return new RadiateRandColor();
-    }
-    //return new TestAudio();
+    }*/
+    //return new TestLights();
+    return new TestAudio();
 }
 
 void receive(int bytes) {
     while (Wire.available() >= 2) {
         byte m = Wire.read(); // low byte
         byte j = Wire.read(); // high byte
-        if (!ready) {
+
+        //if (!ready) {
             // From the example
             // ADC is unsigned 10-bit (0-1023) big-endian
             // byte m = ADCL; // ADC low byte (uint8_t)
@@ -154,19 +177,31 @@ void receive(int bytes) {
             // int k = (j << 8) | m; // combine high + low into uint16_t little-endian
             // k -= 0x0200; // subtract 512 (-512-511)
             // k <<= 6; // left-shift to convert 10-bit into 16-bit
-            // fht_input[i] = k; // finally, add 16-bit signed int
+            // input[i] = k; // finally, add 16-bit signed int
 
             // Combine two uint8_t into one uint16_t little-endian
-            int k = (m << 8) | j;
+            //int k = (m << 8) | j;
+            //input[currentPos] = (j << 8) | m;
+            fft->input[currentPos] = (j << 8) | m;
+            fft->input[currentPos + 1] = 0;
+            if (currentPos >= FFT_SIZE * 2 - 2) {
+            //if (currentPos >= SAMPLES - 1) {
+                currentPos = 0;
+                //ready = true;
+                //memset(fft->output, 0, outputSize);
+                Serial.println("FFT start");
+                Serial.flush();
+                fft->compute();
+                Serial.println("FFT end");
+                Serial.flush();
+                //memset(fft->input, 0, inputSize);
+            } else {
+                //currentPos += 1;
+                currentPos += 2;
+            }
             // Convert signed to unsigned
             //fht_input[currentPos] = (k - 0x0200) << 6; // Subtract 512
-            fht_input[currentPos] = k - 32768;
-            if (currentPos >= FHT_N - 1) {
-                currentPos = 0;
-                ready = true;
-            } else {
-                currentPos += 1;
-            }
-        }
+            //db.getBackBuffer().push(k - 32768);
+        //}
     }
 }

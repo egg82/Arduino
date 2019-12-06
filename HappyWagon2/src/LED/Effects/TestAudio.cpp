@@ -3,14 +3,14 @@
 
 TestAudio::TestAudio() { }
 
-void TestAudio::destroy(CHSV leds[], uint8_t fht[], uint8_t max) {
+void TestAudio::destroy(CHSV leds[], int16_t fft[], int16_t peak) {
     for (int i = 0; i < NUM_LEDS; i++) {
         leds[i].v = 0;
     }
     destroyed = true;
 }
 
-void TestAudio::loop(CHSV leds[], uint8_t fht[], uint8_t max) {
+void TestAudio::loop(CHSV leds[], int16_t fft[], int16_t peak) {
     // We're sampling at half 44100Hz, so 22050Hz
     // 22050Hz / 128 bins = 172.265625Hz peak at each bin
     // 172.265625Hz / 2 = +-86.1328125Hz for each bin
@@ -44,25 +44,41 @@ void TestAudio::loop(CHSV leds[], uint8_t fht[], uint8_t max) {
     // ...
     // fht[128] = 21964-22136Hz = ???
 
-    leds[0].v += scale(((double) leds[0].v / (double) max) * 255.0, ((double) fht[0] / (double) max) * 255.0);
-    leds[1].v += scale(((double) leds[1].v / (double) max) * 255.0, ((double) fht[1] / (double) max) * 255.0);
-    leds[2].v += scale(((double) leds[2].v / (double) max) * 255.0, ((double) avg(fht, 2, 3) / (double) max) * 255.0);
-    leds[3].v += scale(((double) leds[3].v / (double) max) * 255.0, ((double) avg(fht, 4, 12) / (double) max) * 255.0);
-    leds[4].v += scale(((double) leds[4].v / (double) max) * 255.0, ((double) avg(fht, 13, 23) / (double) max) * 255.0);
-    leds[5].v += scale(((double) leds[5].v / (double) max) * 255.0, ((double) avg(fht, 24, 35) / (double) max) * 255.0);
-    leds[6].v += scale(((double) leds[6].v / (double) max) * 255.0, ((double) avg(fht, 36, 116) / (double) max) * 255.0);
+    /*leds[0].v += scale(((double) leds[0].v / peak) * 255.0, ((double) fft[0] / peak) * 255.0);
+    leds[1].v += scale(((double) leds[1].v / peak) * 255.0, ((double) fft[1] / peak) * 255.0);
+    leds[2].v += scale(((double) leds[2].v / peak) * 255.0, ((double) avg(fft, 2, 3) / peak) * 255.0);
+    leds[3].v += scale(((double) leds[3].v / peak) * 255.0, ((double) avg(fft, 4, 12) / peak) * 255.0);
+    leds[4].v += scale(((double) leds[4].v / peak) * 255.0, ((double) avg(fft, 13, 23) / peak) * 255.0);
+    leds[5].v += scale(((double) leds[5].v / peak) * 255.0, ((double) avg(fft, 24, 35) / peak) * 255.0);
+    leds[6].v += scale(((double) leds[6].v / peak) * 255.0, ((double) avg(fft, 36, 116) / peak) * 255.0);*/
+
+    /*leds[0].v = ((double) fft[0] / 1023.0) * 255.0;
+    leds[1].v = ((double) fft[1] / 1023.0) * 255.0;
+    leds[2].v = ((double) avg(fft, 2, 3) / 1023.0) * 255.0;
+    leds[3].v = ((double) avg(fft, 4, 12) / 1023.0) * 255.0;
+    leds[4].v = ((double) avg(fft, 13, 23) / 1023.0) * 255.0;
+    leds[5].v = ((double) avg(fft, 24, 35) / 1023.0) * 255.0;
+    leds[6].v = ((double) avg(fft, 36, 116) / 1023.0) * 255.0;*/
+
+    leds[0].v = scale(((double) leds[0].v / peak) * 255.0, ((double) fft[0] / 1023.0) * 255.0);
+    leds[1].v = scale(((double) leds[0].v / peak) * 255.0, ((double) fft[1] / 1023.0) * 255.0);
+    leds[2].v = scale(((double) leds[0].v / peak) * 255.0, ((double) avg(fft, 2, 3) / 1023.0) * 255.0);
+    leds[3].v = scale(((double) leds[0].v / peak) * 255.0, ((double) avg(fft, 4, 12) / 1023.0) * 255.0);
+    leds[4].v = scale(((double) leds[0].v / peak) * 255.0, ((double) avg(fft, 13, 23) / 1023.0) * 255.0);
+    leds[5].v = scale(((double) leds[0].v / peak) * 255.0, ((double) avg(fft, 24, 35) / 1023.0) * 255.0);
+    leds[6].v = scale(((double) leds[0].v / peak) * 255.0, ((double) avg(fft, 36, 116) / 1023.0) * 255.0);
     
     /*for (int i = 0; i < NUM_LEDS; i++) {
-        double newValue = ((double) fht[i] / (double) max) * 255.0;
-        double oldValue = ((double) leds[i].v / (double) max) * 255.0;
+        double newValue = ((double) fft[i] / peak) * 255.0;
+        double oldValue = ((double) leds[i].v / peak) * 255.0;
         leds[i].v += (newValue - oldValue) * timescale;
     }*/
 }
 
-uint8_t TestAudio::avg(uint8_t fht[], uint16_t start, uint16_t end) {
-    int retVal = 0;
+uint8_t TestAudio::avg(int16_t fft[], uint16_t start, uint16_t end) {
+    double retVal = 0.0;
     for (int i = start; i < end; i++) {
-        retVal += fht[i];
+        retVal += fft[i];
     }
     return retVal / (end - start);
 }

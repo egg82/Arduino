@@ -14,8 +14,8 @@ class PongRandColor : public IEffect {
     public:
     PongRandColor();
     bool canLoop(unsigned long delta) { return delta >= 50; }
-    void loop(CHSV leds[], uint8_t fht[], uint8_t max);
-    void destroy(CHSV leds[], uint8_t fht[], uint8_t max);
+    void loop(CHSV leds[], int16_t fft[], int16_t peak);
+    void destroy(CHSV leds[], int16_t fft[], int16_t peak);
     bool isDestroyed() { return destroyed; }
 };
 

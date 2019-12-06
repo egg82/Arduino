@@ -24,15 +24,17 @@
 #include "Arduino.h"
 
 
-#define UINT16_MAX 65535
+#ifndef UINT16_MAX
+  #define UINT16_MAX 65535
+#endif
 
 #define SRAM0_SS 10
 #define SRAM1_SS 9
 #define DAC_SS 8
 #define ADC_SS 7
 
-// Uno, Duemilanove, Diecimila
-#if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__) 
+// Uno, Duemilanove, Diecimila, Teensy
+#if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__) || defined(TEENSYDUINO)
 // PB5 = D13
 #define SCK_LOW PORTB &= ~0x20
 #define SCK_HIGH PORTB |= 0x20

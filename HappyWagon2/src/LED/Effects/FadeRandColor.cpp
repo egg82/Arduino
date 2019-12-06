@@ -3,7 +3,7 @@
 
 FadeRandColor::FadeRandColor() { }
 
-void FadeRandColor::destroy(CHSV leds[], uint8_t fht[], uint8_t max) {
+void FadeRandColor::destroy(CHSV leds[], int16_t fft[], int16_t peak) {
     bool maxBrightness = true;
     for (int i = 0; i < NUM_LEDS; i++) {
         if (leds[i].v != 0) {
@@ -17,7 +17,7 @@ void FadeRandColor::destroy(CHSV leds[], uint8_t fht[], uint8_t max) {
     }
 }
 
-void FadeRandColor::loop(CHSV leds[], uint8_t fht[], uint8_t max) {
+void FadeRandColor::loop(CHSV leds[], int16_t fft[], int16_t peak) {
     for (int i = 0; i < NUM_LEDS; i++) {
         leds[i].v = (fadeReverse) ? leds[i].v - 1 : leds[i].v + 1;
     }

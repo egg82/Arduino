@@ -10,8 +10,8 @@ class FadeRandColor : public IEffect {
     public:
     FadeRandColor();
     bool canLoop(unsigned long delta) { return delta >= 10; }
-    void loop(CHSV leds[], uint8_t fht[], uint8_t max);
-    void destroy(CHSV leds[], uint8_t fht[], uint8_t max);
+    void loop(CHSV leds[], int16_t fft[], int16_t peak);
+    void destroy(CHSV leds[], int16_t fft[], int16_t peak);
     bool isDestroyed() { return destroyed; }
 };
 

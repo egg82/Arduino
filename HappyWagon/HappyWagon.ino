@@ -7,28 +7,47 @@ AudioController *audioController;
 unsigned int sampleRate = DEFAULT_SAMPLE_RATE;
 unsigned int timerStart = UINT16_MAX - (F_CPU / sampleRate);
 
-//#define DO_DEBUG
+#define DO_DEBUG
 unsigned long lastDebugPrint = 0;
 volatile unsigned int timerEndEven;
 volatile unsigned int timerEndOdd;
 bool evenCycle = true;
 
+uint16_t currentPos = 0;
+uint16_t buffer[AUDIO_BUFFER_SIZE];
 volatile bool ready = false;
 
 void setup() {
     Serial.begin(115200);
     Wire.begin();
-    Wire.flush();
-    Wire.setTimeout(1000);
+    Wire.setTimeout(100);
+    Wire.setClock(1000000L);
 
     audioController = new AudioController();
 }
 
 void loop() {
-    if (!audioController->getDoubleBuffer().getBackBuffer().isEmpty()) {
+    if (ready) {
+        int current = 0;
+        while (current < AUDIO_BUFFER_SIZE - 1) {
+            int min = min(AUDIO_BUFFER_SIZE - 1 - current, 16);
+            Wire.beginTransmission(0x20);
+            for (int i = 0; i < min; i++) {
+                uint16_t read = buffer[current + i];
+                // Split uint16_t into two uint8_t little-endian
+                Wire.write((read >> 8) & 0xFF); // low byte
+                Wire.write(read & 0xFF); // high byte
+            }
+            Wire.endTransmission();
+            current += min;
+        }
+        ready = false;
+    }
+
+    /*if (!audioController->getDoubleBuffer().getBackBuffer().isEmpty()) {
         audioController->getDoubleBuffer().swapBuffers();
         //uint16_t numBytes = 0;
-        Wire.beginTransmission(4);
+        Wire.beginTransmission(0x20);
         while (!audioController->getDoubleBuffer().getCurrentBuffer().isEmpty()) {
             int read = audioController->getDoubleBuffer().getCurrentBuffer().shift();
             // Split uint16_t into two uint8_t little-endian
@@ -38,10 +57,10 @@ void loop() {
         }
         Wire.endTransmission();
 
-        /*Serial.print("wrote ");
+        Serial.print("wrote ");
         Serial.print(numBytes * 2);
-        Serial.println(" bytes");*/
-    }
+        Serial.println(" bytes");
+    }*/
 
     #ifdef DO_DEBUG
     unsigned long mills = millis();
@@ -69,7 +88,16 @@ void loop() {
 
 ISR(TIMER1_OVF_vect) {
     TCNT1 = timerStart;
-    audioController->loop(evenCycle);
+    uint16_t retVal = audioController->loop(evenCycle);
+    if (!ready) {
+        buffer[currentPos] = retVal;
+        if (currentPos >= AUDIO_BUFFER_SIZE - 1) {
+            currentPos = 0;
+            ready = true;
+        } else {
+            currentPos++;
+        }
+    }
 
     #ifdef DO_DEBUG
     if (evenCycle) {

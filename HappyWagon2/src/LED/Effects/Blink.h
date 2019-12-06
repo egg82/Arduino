@@ -9,8 +9,8 @@ class Blink : public IEffect {
     public:
     Blink();
     bool canLoop(unsigned long delta) { return delta >= 500; }
-    void loop(CHSV leds[], uint8_t fht[], uint8_t max);
-    void destroy(CHSV leds[], uint8_t fht[], uint8_t max);
+    void loop(CHSV leds[], int16_t fft[], int16_t peak);
+    void destroy(CHSV leds[], int16_t fft[], int16_t peak);
     bool isDestroyed() { return destroyed; }
 };
 

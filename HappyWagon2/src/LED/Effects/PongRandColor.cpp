@@ -3,14 +3,14 @@
 
 PongRandColor::PongRandColor() { }
 
-void PongRandColor::destroy(CHSV leds[], uint8_t fht[], uint8_t max) {
+void PongRandColor::destroy(CHSV leds[], int16_t fft[], int16_t peak) {
     for (int i = 0; i < NUM_LEDS; i++) {
         leds[i].v = 0;
     }
     destroyed = true;
 }
 
-void PongRandColor::loop(CHSV leds[], uint8_t fht[], uint8_t max) {
+void PongRandColor::loop(CHSV leds[], int16_t fft[], int16_t peak) {
     leds[currentLED].v = 0;
     if (pongReverse) {
         currentLED--;

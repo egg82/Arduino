@@ -1,0 +1,23 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "/home/alex/Arduino/libraries/arduinoFFT/src",
+                "/home/alex/arduino-1.8.10/tools/**",
+                "/home/alex/arduino-1.8.10/hardware/teensy/avr/**",
+                "/home/alex/arduino-1.8.10/hardware/tools/avr/avr/**",
+                "/home/alex/Arduino/hardware/teensy/avr/**"
+            ],
+            "forcedInclude": [],
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "defines": [
+                "USBCON"
+            ]
+        }
+    ],
+    "version": 4
+}

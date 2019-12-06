@@ -1,0 +1,7 @@
+{
+    "board": "teensy:avr:teensy31",
+    "port": "/dev/ttyACM0",
+    "sketch": "HappyWagonTeensy.ino",
+    "programmer": "AVRISP mkII",
+    "configuration": "usb=serial,speed=96,opt=o2std,keys=en-us"
+}

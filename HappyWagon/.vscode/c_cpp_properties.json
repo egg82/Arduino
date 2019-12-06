@@ -1,0 +1,39 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "/home/alex/arduino-1.8.10/tools/**",
+                "/home/alex/arduino-1.8.10/hardware/arduino/avr/**",
+                "/home/alex/arduino-1.8.10/hardware/tools/**",
+                "/home/alex/arduino-1.8.10/libraries/**",
+                "/home/alex/Arduino/libraries/audio-hacker-master",
+                "/home/alex/Arduino/libraries/CircularBuffer",
+                "/home/alex/.arduino15/packages/arduino/hardware/avr/1.8.2/**",
+                "/home/alex/.arduino15/packages/arduino/tools/**"
+            ],
+            "browse": {
+                "path": [
+                    "/home/alex/arduino-1.8.10/tools",
+                    "/home/alex/arduino-1.8.10/hardware/arduino/avr",
+                    "/home/alex/arduino-1.8.10/hardware/tools",
+                    "/home/alex/arduino-1.8.10/libraries",
+                    "/home/alex/Arduino/libraries/audio-hacker-master",
+                    "/home/alex/Arduino/libraries/CircularBuffer"
+                ]
+            },
+            "forcedInclude": [
+                "/home/alex/arduino-1.8.10/hardware/arduino/avr/cores/arduino/Arduino.h",
+                "/home/alex/.arduino15/packages/arduino/hardware/avr/1.8.2/cores/arduino/Arduino.h"
+            ],
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "defines": [
+                "USBCON"
+            ]
+        }
+    ],
+    "version": 4
+}
