@@ -4,7 +4,7 @@ FFT::FFT() {
 
 }
 
-void FFT::compute() {
+void FFT::compute(int16_t *result, uint32_t *index) {
     /*arm_cfft_radix4_instance_f32 fft_inst;
     arm_cfft_radix4_init_f32(&fft_inst, FFT_SIZE, 0, 1);
     arm_cfft_radix4_f32(&fft_inst, input);
@@ -14,4 +14,5 @@ void FFT::compute() {
     arm_cfft_radix4_init_q15(&forwardFFT, FFT_SIZE, 0, 1);
     arm_cfft_radix4_q15(&forwardFFT, input);
     arm_cmplx_mag_q15(input, output, FFT_SIZE);
+    arm_max_q15(output, FFT_SIZE, result, index);
 }

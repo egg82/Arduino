@@ -3,7 +3,7 @@
 
 TestLights::TestLights() { }
 
-void TestLights::destroy(CHSV leds[], int16_t fft[], int16_t peak) {
+void TestLights::destroy(CHSV leds[], int16_t fft[], int16_t peak, uint32_t peakBin, bool recalc) {
     for (int i = 0; i < NUM_LEDS; i++) {
         leds[i].h = color.h;
         leds[i].s = color.s;
@@ -12,7 +12,7 @@ void TestLights::destroy(CHSV leds[], int16_t fft[], int16_t peak) {
     destroyed = true;
 }
 
-void TestLights::loop(CHSV leds[], int16_t fft[], int16_t peak) {
+void TestLights::loop(CHSV leds[], int16_t fft[], int16_t peak, uint32_t peakBin, bool recalc) {
     for (int i = 0; i < NUM_LEDS; i++) {
         leds[i].v = (leds[i].v == 255) ? 0 : 255;
     }

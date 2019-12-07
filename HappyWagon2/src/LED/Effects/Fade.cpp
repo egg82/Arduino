@@ -3,7 +3,7 @@
 
 Fade::Fade() { }
 
-void Fade::destroy(CHSV leds[], int16_t fft[], int16_t peak) {
+void Fade::destroy(CHSV leds[], int16_t fft[], int16_t peak, uint32_t peakBin, bool recalc) {
     bool maxBrightness = true;
     for (int i = 0; i < NUM_LEDS; i++) {
         if (leds[i].v != 0) {
@@ -17,7 +17,7 @@ void Fade::destroy(CHSV leds[], int16_t fft[], int16_t peak) {
     }
 }
 
-void Fade::loop(CHSV leds[], int16_t fft[], int16_t peak) {
+void Fade::loop(CHSV leds[], int16_t fft[], int16_t peak, uint32_t peakBin, bool recalc) {
     for (int i = 0; i < NUM_LEDS; i++) {
         leds[i].v = (fadeReverse) ? leds[i].v - 1 : leds[i].v + 1;
     }

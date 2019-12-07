@@ -15,7 +15,9 @@ uint16_t AudioController::loop(bool evenCycle) {
     
     // Convert 12-bit unsigned to 10-bit unsigned
     //db.getBackBuffer().push(read >> 2);
-    return read >> 2;
+    //return read >> 2;
+
+    return read;
 
     /*if (!evenCycle) {
         // Convert 12-bit unsigned to 16-bit unsigned

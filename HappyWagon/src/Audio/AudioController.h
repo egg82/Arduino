@@ -4,8 +4,6 @@
 #include <AudioHacker.h>
 //#include "../DoubleBuffer.h"
 
-#define AUDIO_BUFFER_SIZE 256
-
 class AudioController {
     private:
     //DoubleBuffer<uint16_t, AUDIO_BUFFER_SIZE> db;

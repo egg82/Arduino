@@ -2,12 +2,14 @@
 
 #include <Wire.h>
 
+#define AUDIO_BUFFER_SIZE 256
+
 AudioController *audioController;
 
 unsigned int sampleRate = DEFAULT_SAMPLE_RATE;
 unsigned int timerStart = UINT16_MAX - (F_CPU / sampleRate);
 
-#define DO_DEBUG
+//#define DO_DEBUG
 unsigned long lastDebugPrint = 0;
 volatile unsigned int timerEndEven;
 volatile unsigned int timerEndOdd;
@@ -21,16 +23,18 @@ void setup() {
     Serial.begin(115200);
     Wire.begin();
     Wire.setTimeout(100);
-    Wire.setClock(1000000L);
+    Wire.setClock(380000L);
+    //Wire.setClock(400000);
+    //Wire.setClock(1000000L);
 
     audioController = new AudioController();
 }
 
 void loop() {
     if (ready) {
-        int current = 0;
+        uint16_t current = 0;
         while (current < AUDIO_BUFFER_SIZE - 1) {
-            int min = min(AUDIO_BUFFER_SIZE - 1 - current, 16);
+            uint8_t min = min(AUDIO_BUFFER_SIZE - 1 - current, 16);
             Wire.beginTransmission(0x20);
             for (int i = 0; i < min; i++) {
                 uint16_t read = buffer[current + i];

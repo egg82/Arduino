@@ -17,7 +17,7 @@ class LEDController {
     LEDController();
     void setEffect(IEffect *effect);
     IEffect *getEffect() { return effect; };
-    bool loop(unsigned long mills, int16_t fft[], int16_t peak);
+    bool loop(unsigned long mills, int16_t fft[], int16_t peak, uint32_t peakBin, bool recalc);
     bool isSetup() { return isSet; }
     bool isDestroyed() { return this->effect->isDestroyed(); }
 

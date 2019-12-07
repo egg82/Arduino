@@ -12,12 +12,16 @@
 #include "src/LED/Effects/RadiateRandColor.h"
 #include "src/LED/Effects/TestLights.h"
 #include "src/LED/Effects/TestAudio.h"
+#include "src/LED/Effects/SimpleAudioResponsive.h"
 
 //#define SAMPLES 256
 //#define SAMPLING_FREQUENCY 22050
 
-//volatile bool ready = false;
+bool recalc = false;
+volatile bool ready = false;
 //arduinoFFT FFT = arduinoFFT();
+int16_t maxPeak = 1;
+uint32_t maxIndex = 1;
 FFT *fft;
 
 LEDController *ledController;
@@ -49,7 +53,6 @@ Effect currentEffect;
 void setup() {
     Serial.begin(115200);
     Wire.begin(0x20);
-    TWBR = 12;
     Wire.onReceive(receive);
 
     setSeeds(getNoise());
@@ -66,13 +69,24 @@ void setup() {
     lastRandTime = millis();
 }
 
+unsigned long start;
+unsigned long end;
+
 void loop() {
-    /*if (ready) {
+    if (ready) {
         //max = 0;
-        Serial.println("FFT start");
-        Serial.flush();
-        fft->compute();
-        Serial.println("FFT end");
+        start = micros();
+        fft->compute(&maxPeak, &maxIndex);
+        end = micros();
+        recalc = true;
+        //Serial.print(maxPeak);
+        //Serial.print("\t");
+        //Serial.println(maxIndex);
+        //Serial.println(end - start);
+        //Serial.flush();
+        /*for(int i = 0; i < (FFT_SIZE / 2); i++) {
+            Serial.println(fft->output[i], 1);
+        }
         Serial.flush();*/
         /*memcpy(vReal, input, size);
         memset(vImag, 0, size);
@@ -92,11 +106,12 @@ void loop() {
             //Serial.print(",");
         }
         Serial.println();*/
-        //ready = false;
-    //}
+        ready = false;
+    }
 
     unsigned long mills = millis();
-    if (ledController->loop(mills, fft->output, 255)) {
+    if (ledController->loop(mills, fft->output, maxPeak, maxIndex, recalc)) {
+        recalc = false;
         // Account for time taken during setup when calculating for effect switch
         if (!isSet && ledController->isSetup()) {
             isSet = true;
@@ -161,7 +176,8 @@ IEffect *getEffect(Effect effect) {
         return new RadiateRandColor();
     }*/
     //return new TestLights();
-    return new TestAudio();
+    //return new TestAudio();
+    return new SimpleAudioResponsive();
 }
 
 void receive(int bytes) {
@@ -169,7 +185,7 @@ void receive(int bytes) {
         byte m = Wire.read(); // low byte
         byte j = Wire.read(); // high byte
 
-        //if (!ready) {
+        if (!ready) {
             // From the example
             // ADC is unsigned 10-bit (0-1023) big-endian
             // byte m = ADCL; // ADC low byte (uint8_t)
@@ -187,13 +203,16 @@ void receive(int bytes) {
             if (currentPos >= FFT_SIZE * 2 - 2) {
             //if (currentPos >= SAMPLES - 1) {
                 currentPos = 0;
-                //ready = true;
+                ready = true;
                 //memset(fft->output, 0, outputSize);
-                Serial.println("FFT start");
-                Serial.flush();
-                fft->compute();
-                Serial.println("FFT end");
-                Serial.flush();
+                /*Serial.println("FFT start");
+                Serial.flush();*/
+                //fft->compute();
+                /*for (int i = 0; i < FFT_SIZE / 2; i++) {
+                    Serial.println(fft->output[i], 1);
+                }*/
+                /*Serial.println("FFT end");
+                Serial.flush();*/
                 //memset(fft->input, 0, inputSize);
             } else {
                 //currentPos += 1;
@@ -202,6 +221,6 @@ void receive(int bytes) {
             // Convert signed to unsigned
             //fht_input[currentPos] = (k - 0x0200) << 6; // Subtract 512
             //db.getBackBuffer().push(k - 32768);
-        //}
+        }
     }
 }

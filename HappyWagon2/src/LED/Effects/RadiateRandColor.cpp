@@ -7,14 +7,14 @@ RadiateRandColor::RadiateRandColor() {
     }
 }
 
-void RadiateRandColor::destroy(CHSV leds[], int16_t fft[], int16_t peak) {
+void RadiateRandColor::destroy(CHSV leds[], int16_t fft[], int16_t peak, uint32_t peakBin, bool recalc) {
     for (int i = 0; i < NUM_LEDS; i++) {
         leds[i].v = 0;
     }
     destroyed = true;
 }
 
-void RadiateRandColor::loop(CHSV leds[], int16_t fft[], int16_t peak) {
+void RadiateRandColor::loop(CHSV leds[], int16_t fft[], int16_t peak, uint32_t peakBin, bool recalc) {
     if (currentLED >= middleLED) {
         currentLED = 0;
         uint8_t hue = random8();

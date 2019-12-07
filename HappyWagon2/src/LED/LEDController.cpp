@@ -2,7 +2,7 @@
 
 #define LED_TYPE WS2811
 #define COLOR_ORDER GRB
-#define BRIGHTNESS 255
+#define BRIGHTNESS 64
 
 CHSV leds[NUM_LEDS];
 CRGB c[NUM_LEDS];
@@ -10,16 +10,16 @@ unsigned long lastMills;
 
 LEDController::LEDController() {
     FastLED.addLeds<LED_TYPE, PIN, COLOR_ORDER>(c, NUM_LEDS);
-    /*FastLED.setCorrection(TypicalLEDStrip);
+    FastLED.setCorrection(TypicalLEDStrip);
     FastLED.setBrightness(BRIGHTNESS);
-    lastMills = millis();*/
+    lastMills = millis();
 
-    //FastLED.setDither(false);
+    /*//FastLED.setDither(false);
     FastLED.setCorrection(TypicalLEDStrip);
     FastLED.setBrightness(BRIGHTNESS);
     FastLED.setMaxPowerInVoltsAndMilliamps(5, 1500);
     set_max_power_indicator_LED(13);
-    lastMills = millis();
+    lastMills = millis();*/
 }
 
 void LEDController::setEffect(IEffect *effect) {
@@ -31,10 +31,10 @@ void LEDController::setEffect(IEffect *effect) {
     isSet = false;
 }
 
-bool LEDController::loop(unsigned long mills, int16_t fft[], int16_t peak) {
+bool LEDController::loop(unsigned long mills, int16_t fft[], int16_t peak, uint32_t peakBin, bool recalc) {
     if (previousEffect != NULL && !previousEffect->isDestroyed()) {
         if (previousEffect->canLoop(mills - lastMills)) {
-            previousEffect->destroy(leds, fft, peak);
+            previousEffect->destroy(leds, fft, peak, peakBin, recalc);
             lastMills = mills;
             display();
             return true;
@@ -42,7 +42,7 @@ bool LEDController::loop(unsigned long mills, int16_t fft[], int16_t peak) {
     } else {
         isSet = true;
         if (effect->canLoop(mills - lastMills)) {
-            effect->loop(leds, fft, peak);
+            effect->loop(leds, fft, peak, peakBin, recalc);
             lastMills = mills;
             display();
             return true;

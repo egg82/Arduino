@@ -1,16 +1,27 @@
-#include "TestAudio.h"
+#include "SimpleAudioResponsive.h"
 #include "../LEDController.h"
 
-TestAudio::TestAudio() { }
+SimpleAudioResponsive::SimpleAudioResponsive() { }
 
-void TestAudio::destroy(CHSV leds[], int16_t fft[], int16_t peak, uint32_t peakBin, bool recalc) {
-    for (int i = 0; i < NUM_LEDS; i++) {
-        leds[i].v = 0;
+void SimpleAudioResponsive::destroy(CHSV leds[], int16_t fft[], int16_t peak, uint32_t peakBin, bool recalc) {
+    for (int i = NUM_LEDS - 1; i > 0; i--) {
+        leds[i].h = leds[i - 1].h;
+        leds[i].s = leds[i - 1].s;
+        leds[i].v = leds[i - 1].v;
     }
-    destroyed = true;
+    leds[0].s = 255;
+    leds[0].v = 0;
+
+    destroyedLEDs++;
+    if (destroyedLEDs >= NUM_LEDS) {
+        for (int i = 0; i < NUM_LEDS; i++) {
+            leds[i].h = random8();
+        }
+        destroyed = true;
+    }
 }
 
-void TestAudio::loop(CHSV leds[], int16_t fft[], int16_t peak, uint32_t peakBin, bool recalc) {
+void SimpleAudioResponsive::loop(CHSV leds[], int16_t fft[], int16_t peak, uint32_t peakBin, bool recalc) {
     // 44100Hz / 1024 bins = 43.06640625Hz peak at each bin
     // 86.1328125Hz / 2 = +-21.533203125Hz for each bin
     // only 512 bins are available, so max frequency is 22050Hz
@@ -78,21 +89,51 @@ void TestAudio::loop(CHSV leds[], int16_t fft[], int16_t peak, uint32_t peakBin,
     Serial.println((double) avg(fft, 140, 464) / (double) peak);
     Serial.flush();*/
 
-    leds[0].v = ((double) fft[1] / 511.0) * 255.0; // sub-bass
+    for (int i = NUM_LEDS - 1; i > 0; i--) {
+        leds[i].h = leds[i - 1].h;
+        leds[i].s = leds[i - 1].s;
+        leds[i].v = leds[i - 1].v;
+    }
+    /*leds[0].h = peakBin <= 1 ? 160 : ((double) peakBin / 1024.0) * 224.0;
+    leds[0].s = peakBin <= 1 ? 0 : 255;
+    leds[0].v = 255;*/
+
+    if (recalc) {
+        bins[0] = min(((double) (fft[1] * 0.95) / 511.0) * 255.0, 255);
+        bins[1] = min(((double) (avg(fft, 2, 5) * 1.05) / 511.0) * 255.0, 255);
+        bins[2] = min(((double) (avg(fft, 6, 11) * 1.5) / 511.0) * 255.0, 255);
+        bins[3] = min(((double) (avg(fft, 12, 46) * 1.5) / 511.0) * 255.0, 255);
+        bins[4] = min(((double) (avg(fft, 47, 93) * 1.5) / 511.0) * 255.0, 255);
+        bins[5] = min(((double) (avg(fft, 94, 139) * 1.25) / 511.0) * 255.0, 255);
+        bins[6] = min(((double) (avg(fft, 140, 464)* 1.0) / 511.0) * 255.0, 255);
+
+        /*for (int i = 0; i < 7; i++) {
+            Serial.print(bins[i]);
+            Serial.print("\t");
+        }
+        Serial.println();
+        Serial.flush();*/
+    }
+
+    uint8_t max = 0;
+    uint8_t maxBin = 0;
+    for (int i = 0; i < 7; i++) {
+        if (bins[i] > max) {
+            max = bins[i];
+            maxBin = i;
+        }
+    }
+    leds[0].h = ((double) maxBin / 7.0) * 224.0;
+    leds[0].s = peakBin == 0 ? 0 : 255;
+    leds[0].v = peakBin == 0 ? 200 : 255;
+
+    /*leds[0].v = ((double) fft[1] / 511.0) * 255.0; // sub-bass
     leds[1].v = ((double) avg(fft, 2, 5) / 511.0) * 255.0; // bass
     leds[2].v = ((double) avg(fft, 6, 11) / 511.0) * 255.0; // low-midrange
     leds[3].v = ((double) avg(fft, 12, 46) / 511.0) * 255.0; // midrange
     leds[4].v = ((double) avg(fft, 47, 93) / 511.0) * 255.0; // upper-midrange
     leds[5].v = ((double) avg(fft, 94, 139) / 511.0) * 255.0; // presence
-    leds[6].v = ((double) avg(fft, 140, 464) / 511.0) * 255.0; // brilliance
-
-    /*leds[0].v = scale(leds[0].v, ((double) fft[1] / 511.0) * 255.0);
-    leds[1].v = scale(leds[1].v, ((double) avg(fft, 2, 5) / 511.0) * 255.0);
-    leds[2].v = scale(leds[2].v, ((double) avg(fft, 6, 11) / 511.0) * 255.0);
-    leds[3].v = scale(leds[3].v, ((double) avg(fft, 12, 46) / 511.0) * 255.0);
-    leds[4].v = scale(leds[4].v, ((double) avg(fft, 47, 93) / 511.0) * 255.0);
-    leds[5].v = scale(leds[5].v, ((double) avg(fft, 94, 139) / 511.0) * 255.0);
-    leds[6].v = scale(leds[6].v, ((double) avg(fft, 140, 464) / 511.0) * 255.0);*/
+    leds[6].v = ((double) avg(fft, 140, 464) / 511.0) * 255.0; // brilliance*/
     
     /*for (int i = 0; i < NUM_LEDS; i++) {
         double newValue = ((double) fft[i] / peak) * 255.0;
@@ -101,7 +142,7 @@ void TestAudio::loop(CHSV leds[], int16_t fft[], int16_t peak, uint32_t peakBin,
     }*/
 }
 
-uint16_t TestAudio::avg(int16_t fft[], uint16_t start, uint16_t end) {
+uint16_t SimpleAudioResponsive::avg(int16_t fft[], uint16_t start, uint16_t end) {
     double retVal = 0.0;
     for (int i = start; i < end; i++) {
         retVal += fft[i];
