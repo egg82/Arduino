@@ -14,8 +14,9 @@ void SimpleAudioResponsive::destroy(CHSV leds[], int16_t fft[], int16_t peak, ui
 
     destroyedLEDs++;
     if (destroyedLEDs >= NUM_LEDS) {
+        uint8_t hue = random8();
         for (int i = 0; i < NUM_LEDS; i++) {
-            leds[i].h = random8();
+            leds[i].h = hue;
         }
         destroyed = true;
     }
@@ -125,7 +126,7 @@ void SimpleAudioResponsive::loop(CHSV leds[], int16_t fft[], int16_t peak, uint3
     }
     leds[0].h = ((double) maxBin / 7.0) * 224.0;
     leds[0].s = peakBin == 0 ? 0 : 255;
-    leds[0].v = peakBin == 0 ? 200 : 255;
+    leds[0].v = peakBin == 0 ? 190 : 255; // White LEDs are very bright
 
     /*leds[0].v = ((double) fft[1] / 511.0) * 255.0; // sub-bass
     leds[1].v = ((double) avg(fft, 2, 5) / 511.0) * 255.0; // bass

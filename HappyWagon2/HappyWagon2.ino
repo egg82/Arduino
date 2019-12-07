@@ -45,6 +45,7 @@ enum Effect {
     FADE_RAND_COLOR,
     PONG_RAND_COLOR,
     RADIATE_RAND_COLOR,
+    SIMPLE_AUDIO_RESPONSIVE,
     NONE
 };
 
@@ -174,6 +175,8 @@ IEffect *getEffect(Effect effect) {
         return new PongRandColor();
         case RADIATE_RAND_COLOR:
         return new RadiateRandColor();
+        case SIMPLE_AUDIO_RESPONSIVE:
+        return new SimpleAudioResponsive();
     }*/
     //return new TestLights();
     //return new TestAudio();
